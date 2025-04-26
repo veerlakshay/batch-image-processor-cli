@@ -67,22 +67,48 @@ def main():
         return
 
     print(f"Found {len(image_files)} image file(s) to process.")
-
     print("Files found:")
     for img_path in image_files:
         print(f"    - {img_path}")
 
 
+    print(f"\nStarting processing for action: '{args.action}'...")
+    processed_count = 0
+    failed_count = 0
+
+    for input_path in image_files:
+        filename = os.path.basename(input_path)
+        output_path = os.path.join(args.output_dir, filename)
+
+        try:
+            with Image.open(input_path) as img:
+                print(f"    Processing '{filename}'...")
+                # TODO : Processing
+                img.save(output_path)
+                processed_count += 1
+
+        except Exception as e:
+            print(f"    Error processinh file '{filename}' : {e}")
+            failed_count += 1
+
+
+    # Process Summary
+    print("\n---- Processing Complete ----")
+    print(f"Successfully processed: {processed_count} files(s)")
+    print(f"Failed to process: {failed_count} files(s)")
+    print(f"Processed files saved in: {args.output_dir}")
+
+
 
 
     # TODO : logic based on args.action
-    if args.action == "resize":
-        print("     (Resize action selected )")
-        pass
-
-    elif args.action == "convert":
-        print("     (Convert action selected)")
-        pass
+    # if args.action == "resize":
+    #     print("     (Resize action selected )")
+    #     pass
+    #
+    # elif args.action == "convert":
+    #     print("     (Convert action selected)")
+    #     pass
 
 if __name__ == "__main__":
     main()
