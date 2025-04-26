@@ -1,5 +1,7 @@
 import argparse
 import os
+from PIL import Image
+
 
 def main():
     parser = argparse.ArgumentParser(description="Batch Image Processor CLI")
@@ -46,6 +48,32 @@ def main():
     print(f"    Input Directory: {args.input_dir}")
     print(f"    Output Directory: {args.output_dir}")
     print(f"    Action: {args.action}")
+
+    image_extensions = ('.jpg' , '.jpeg' , '.png', '.gif', '.bmp', '.tiff', '.webp')
+    image_files = []
+
+    print(f"\nSearching for images with extensions {image_extensions} in '{args.input_dir}'...")
+    print("(Note: This version does not search subdirectories)")
+
+    try:
+        for filename in os.listdir(args.input_dir):
+            full_path = os.path.join(args.input_dir, filename)
+
+            if os.path.isfile(full_path) and filename.lower().endswith(image_extensions):
+                image_files.append(full_path)
+
+    except OSError as e:
+        print(f"Error reading input directory: {e}")
+        return
+
+    print(f"Found {len(image_files)} image file(s) to process.")
+
+    print("Files found:")
+    for img_path in image_files:
+        print(f"    - {img_path}")
+
+
+
 
     # TODO : logic based on args.action
     if args.action == "resize":
