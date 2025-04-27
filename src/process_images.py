@@ -2,6 +2,15 @@ import argparse
 import os
 from PIL import Image
 
+try:
+    from PIL.Image import Resampling
+    DEFAULT_RESAMPLE_FILTER = Resampling.LANCZOS
+    print("Using Pillow >= 9.0 with Resampling.LANCZOS")
+except ImportError:
+    DEFAULT_RESAMPLE_FILTER = Image.ANTIALIAS
+    print("Warning: Using older Pillow version (< 9.0.0). Using Image.ANTIALIAS filter.")
+    print("Consider upgrading Pillow ('pip install --upgrade Pillow') for newer filters.")
+
 
 def main():
     parser = argparse.ArgumentParser(description="Batch Image Processor CLI")
