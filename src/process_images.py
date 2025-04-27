@@ -31,7 +31,14 @@ def main():
 
     parser_resize = subparsers.add_parser(
         "resize",
-        help="Resize images"
+        help="Resize images preserving aspect ratio based on target width"
+    )
+
+    parser_resize.add_argument(
+        "--width",
+        type=int,
+        required=True,
+        help="Target width  in pixels. Height will be calculated automatically",
     )
 
     parsers_convert = subparsers.add_parser(
@@ -92,12 +99,43 @@ def main():
         try:
             with Image.open(input_path) as img:
                 print(f"    Processing '{filename}'...")
-                # TODO : Processing
-                img.save(output_path)
-                processed_count += 1
+                image_to_save = img
+                original_width, original_height = img.size
 
+                # Resize action
+                if args.action == 'resize':
+                    if args.width <= 0:
+                        raise ValueError("Target width must be a positive Integer")
+
+                    print(f"    Original size: {original_width}x{original_height}")
+
+                    #new height to maintain aspect ratio
+                    if original_width > 0:
+                        aspect_ratio = float(original_height) / float(original_width)
+                        new_height = int(args.width * aspect_ratio)
+
+                    else:
+                        new_height = 0
+
+                    if new_height <= 0:
+                        raise ValueError(f"Calculated height ({new_height}) is not possible. Original size {original_width}x{original_height}.")
+
+                    new_size = (args.width , new_height)
+
+                    if original_width <= args.width:
+                        print(f"    Skipping resize: Image width ({original_width}px) is already less than or equal to target ({args.width}px).")
+
+                    else:
+                        print(f"    Resizing to: {new_size[0]}x{new_size[1]}")
+                        image_to_save = img.resize(new_size, resample=DEFAULT_RESAMPLE_FILTER)
+
+                image_to_save.save(output_path)
+                processed_count += 1
+        except ValueError as ve:
+            print(f"    Skipping file '{filename} : {ve}'")
+            failed_count += 1
         except Exception as e:
-            print(f"    Error processinh file '{filename}' : {e}")
+            print(f"    Error processing file '{filename}' : {e}")
             failed_count += 1
 
 
@@ -106,18 +144,6 @@ def main():
     print(f"Successfully processed: {processed_count} files(s)")
     print(f"Failed to process: {failed_count} files(s)")
     print(f"Processed files saved in: {args.output_dir}")
-
-
-
-
-    # TODO : logic based on args.action
-    # if args.action == "resize":
-    #     print("     (Resize action selected )")
-    #     pass
-    #
-    # elif args.action == "convert":
-    #     print("     (Convert action selected)")
-    #     pass
 
 if __name__ == "__main__":
     main()
